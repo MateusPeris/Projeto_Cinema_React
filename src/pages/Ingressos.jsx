@@ -10,9 +10,17 @@ function Ingressos() {
     return dados ? JSON.parse(dados) : [];
   });
 
-  const [form, setForm] = useState({
-    sessao: "", nome: "", cpf: "", assento: "", pagamento: ""
-  });
+  const [form, setForm] = useState(() => {
+  const sessaoSelecionada = JSON.parse(localStorage.getItem("sessaoSelecionada"));
+  return {
+    sessao: sessaoSelecionada ? `${sessaoSelecionada.filme} - ${sessaoSelecionada.dataHora}` : "",
+    nome: "",
+    cpf: "",
+    assento: "",
+    pagamento: ""
+  };
+});
+
 
   useEffect(() => {
     setSessoes(JSON.parse(localStorage.getItem("sessoes")) || []);
@@ -23,6 +31,8 @@ function Ingressos() {
   }, [ingressos]);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  localStorage.removeItem("sessaoSelecionada");
+
 
   const handleSubmit = () => {
     setIngressos([...ingressos, form]);
