@@ -10,6 +10,7 @@ function Salas() {
   });
 
   const [form, setForm] = useState({ nome: "", capacidade: "", tipo: "" });
+  const [editIndex, setEditIndex] = useState(null);
 
   useEffect(() => {
     localStorage.setItem("salas", JSON.stringify(salas));
@@ -20,8 +21,25 @@ function Salas() {
   };
 
   const handleSubmit = () => {
-    setSalas([...salas, form]);
+    if (editIndex !== null) {
+      const atualizadas = salas.map((s, i) => (i === editIndex ? form : s));
+      setSalas(atualizadas);
+      setEditIndex(null);
+    } else {
+      setSalas([...salas, form]);
+    }
+
     setForm({ nome: "", capacidade: "", tipo: "" });
+  };
+
+  const editarItem = (index) => {
+    setForm(salas[index]);
+    setEditIndex(index);
+  };
+
+  const excluirItem = (index) => {
+    const novas = salas.filter((_, i) => i !== index);
+    setSalas(novas);
   };
 
   return (
@@ -29,22 +47,24 @@ function Salas() {
       <h1>Cadastro de Salas</h1>
       <Input label="Nome" name="nome" value={form.nome} onChange={handleChange} />
       <Input label="Capacidade" name="capacidade" value={form.capacidade} onChange={handleChange} />
+
       <div className="mb-3">
         <label className="form-label">Tipo</label>
         <select name="tipo" className="form-select" value={form.tipo} onChange={handleChange}>
-          <option value="" selected disabled>Esolha o tipo</option>
+          <option value="">Selecione</option>
           <option>2D</option>
           <option>3D</option>
           <option>IMAX</option>
         </select>
       </div>
 
-      <Botao onClick={handleSubmit}>Salvar Sala</Botao>
+      <Botao onClick={handleSubmit}>{editIndex !== null ? "Atualizar Sala" : "Salvar Sala"}</Botao>
+
       <hr />
       <h3>Salas Cadastradas</h3>
       <table className="table table-striped">
         <thead>
-          <tr><th>Nome</th><th>Capacidade</th><th>Tipo</th></tr>
+          <tr><th>Nome</th><th>Capacidade</th><th>Tipo</th><th>Ações</th></tr>
         </thead>
         <tbody>
           {salas.map((sala, i) => (
@@ -52,6 +72,10 @@ function Salas() {
               <td>{sala.nome}</td>
               <td>{sala.capacidade}</td>
               <td>{sala.tipo}</td>
+              <td>
+                <button className="btn btn-warning btn-sm me-2" onClick={() => editarItem(i)}>Editar</button>
+                <button className="btn btn-danger btn-sm" onClick={() => excluirItem(i)}>Excluir</button>
+              </td>
             </tr>
           ))}
         </tbody>
